@@ -726,6 +726,28 @@ $(document).ready(function() {
 			ok( b2.get( 'a' ).id == 'a2' );
 		});
 
+		test( "Can serialize related model", function() {
+			var A = Backbone.RelationalModel.extend({
+			});
+			var B = Backbone.RelationalModel.extend({
+				relations: [{
+					type: Backbone.HasOne,
+					key: 'a',
+					keySource: 'a_id',
+					relatedModel: A,
+					includeInJSON: 'id'
+				}]
+			});
+
+			var a1 = new A({ id: 'a1' });
+			var b1 = new B({ a: a1 });
+
+			var b2 = new B({ a_id: 'a2' });
+
+			ok( b1.toJSON().a_id == 'a1' );
+			ok( b2.toJSON().a_id == 'a2' );
+		});
+
 
 	module( "Backbone.RelationalModel inheritance (`subModelTypes`)", {} );
 

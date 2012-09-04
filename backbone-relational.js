@@ -1354,7 +1354,7 @@
 							json[ rel.keyDestination ] = value.get( rel.options.includeInJSON );
 						}	
 						else {
-							json[ rel.keyDestination ] = null;
+							json[ rel.keyDestination ] = rel.keyContents || null;
 						}
 					}
 					else if ( _.isArray( rel.options.includeInJSON ) ) {
