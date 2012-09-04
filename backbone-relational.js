@@ -398,7 +398,7 @@
 		}
 
 		if ( instance ) {
-			this.keyContents = this.instance.get( this.keySource );
+			this.keyContents = this.instance.get( this.keySource ) || this.instance.get( this.key );
 
 			// Explicitly clear 'keySource', to prevent a leaky abstraction if 'keySource' differs from 'key'.
 			if ( this.key !== this.keySource ) {

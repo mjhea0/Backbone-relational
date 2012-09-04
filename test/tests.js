@@ -702,7 +702,31 @@ $(document).ready(function() {
 			ok( origPersonCollSize + 1 === personColl.length, "No person was found (1 created)" );
 		});
 
-	
+		test( "Can pass related model in constructor", function() {
+			var A = Backbone.RelationalModel.extend({
+			});
+			var B = Backbone.RelationalModel.extend({
+				relations: [{
+					type: Backbone.HasOne,
+					key: 'a',
+					keySource: 'a_id',
+					relatedModel: A
+				}]
+			});
+
+			var a1 = new A({ id: 'a1' });
+			var b1 = new B({});
+			b1.set( 'a', a1 );
+			ok( b1.get( 'a' ) instanceof A );
+			ok( b1.get( 'a' ).id == 'a1' );
+
+			var a2 = new A({ id: 'a2' });
+			var b2 = new B({ a: a2 });
+			ok( b2.get( 'a' ) instanceof A );
+			ok( b2.get( 'a' ).id == 'a2' );
+		});
+
+
 	module( "Backbone.RelationalModel inheritance (`subModelTypes`)", {} );
 
 
