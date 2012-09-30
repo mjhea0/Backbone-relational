@@ -558,7 +558,7 @@
 			var reverseRelations = [];
 			// Iterate over 'model', 'this.related.models' (if this.related is a Backbone.Collection), or wrap 'this.related' in an array.
 			var models = !_.isUndefined( model ) ? [ model ] : this.related && ( this.related.models || [ this.related ] );
-			_.each( models , function( related ) {
+			_.each( models || [], function( related ) {
 					_.each( related.getRelations(), function( relation ) {
 							if ( this._isReverseRelation( relation ) ) {
 								reverseRelations.push( relation );
@@ -920,7 +920,7 @@
 			options = this.sanitizeOptions( options );
 			if ( !this.related.getByCid( model ) && !this.related.get( model ) ) {
 				// Check if this new model was specified in 'this.keyContents'
-				var item = _.any( this.keyContents, function( item ) {
+				var item = _.any( this.keyContents || [], function( item ) {
 						var id = Backbone.Relational.store.resolveIdForItem( this.relatedModel, item );
 						return id && id === model.id;
 					}, this );
