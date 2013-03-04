@@ -1243,6 +1243,60 @@ $(document).ready(function() {
 			equal( changedAttrs.color, 'red', '... with correct properties in "changedAttributes"' );
 		});
 
+        test( "a collection parse function shouldn't break fetching of parent model", function() {
+            var companyData = {
+                "id": "company-1",
+                "contacts": [
+                    {
+                        "id": "1013855", 
+                    }
+                ]
+            };
+
+            var Collection = Backbone.Collection.extend({
+                parse: function(response) {
+                    return response.data;
+                }
+            });
+
+            var Contact = Backbone.RelationalModel.extend();
+            var Contacts = Collection.extend({
+                model: Contact
+            });
+
+            var Company = Backbone.RelationalModel.extend({
+                relations: [
+                    {
+                        type: Backbone.HasMany,
+                        key: 'contacts',
+                        relatedModel: Contact,
+                        collectionType: Contacts
+                    }
+                ],
+                sync: function(method, model, options) {
+                    // fake a 'sync' -- 
+                    var success = options.success;
+                    resp = companyData;
+                    if (success) success(model, resp, options);
+                    model.trigger('sync', model, resp, options);
+                }
+            });
+
+            var company = new Company(companyData, { parse: true });
+            var contacts = company.get('contacts'),
+                contact = contacts.first();
+            ok(contact, 'contact exists');
+
+            // simulate what would happen if company.fetch() was called.
+            company.fetch();
+            //company.set(company.parse(companyData)); // passes, but this isn't how 'fetch' works
+            //company.set(company.parse(companyData, { parse: true }), { parse: true }); // fails (internally this is what 'fetch' does)
+
+            ok(contacts === company.get('contacts'), 'contacts collection is same instance after fetch');
+            equal(contacts.length, 1, '... with correct length');
+            ok(contact === contacts.first(), '... and same model instances');
+        });
+
 		test( "change event shouldn't get fired on nested obj (using parse to construct same id)", function() {
 
 			var Phone = Backbone.RelationalModel.extend();
