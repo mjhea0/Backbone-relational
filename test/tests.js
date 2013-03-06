@@ -1739,6 +1739,48 @@ $(document).ready(function() {
 			ok( viewJSON.properties_attributes && viewJSON.properties_attributes.length === 2, "'viewJSON' has two 'properties_attributes'" );
 			ok( typeof viewJSON.properties === 'undefined', "'viewJSON' does not have 'properties'" );
 		});
+
+		test("Keep keySource value around if model doesn't exist", function() {
+			var Game = Backbone.RelationalModel.extend();
+			var Ticket = Backbone.RelationalModel.extend({
+				relations: [{
+					type: Backbone.HasOne,
+					key: 'game',
+					keySource: 'game_id',
+					relatedModel: Game,
+					includeInJSON: 'id'
+				}]
+			});
+
+			var game1 = new Game({ id: 1, name: 'Game 1' });
+
+			var ticket1 = new Ticket({
+				game_id: 1
+			});
+			var ticket2 = new Ticket({
+				game_id: 2
+			});
+
+			equal(ticket1.get('game').get('name'), 'Game 1', 'ticket1 game exists (game previously instantiated)');
+
+			// FAIL #1
+			equal(ticket1.get('game_id'), 1, 'ticket1 game_id still exists (game previously instantiated)');
+
+			var ticket1json = ticket1.toJSON();
+			ok(!ticket1json.game, 'ticket1 json should not have game')
+			equal(ticket1json.game_id, 1, 'ticket1 json should have game_id')
+
+			ok(!ticket2.get('game'), 'ticket2 game does not exist (game never instantiated)');
+
+			// FAIL #2
+			equal(ticket2.get('game_id'), 2, 'ticket2 game_id still exists exist (game never instantiated)');
+
+			var ticket2json = ticket2.toJSON();
+			ok(!ticket2json.game, 'ticket2 json should not have game')
+
+			// FAIL #3
+			equal(ticket2json.game_id, 2, 'ticket2 json should have game_id')
+		});
 		
 		test( "'collectionOptions' sets the options on the created HasMany Collections", function() {
 			var zoo = new Zoo();
