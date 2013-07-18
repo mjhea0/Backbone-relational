@@ -1494,7 +1494,7 @@
 						}
 						else if  ( rel instanceof Backbone.HasOne ) {
 							value = value || rel.keyId;
-							if (!value && !_.isObject(rel.keyContents)) value = rel.keyContents;
+							if (!value && !_.isObject(rel.keyContents)) value = rel.keyContents || null;
 						}
 					}
 				}
